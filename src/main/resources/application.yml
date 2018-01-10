@@ -1,0 +1,25 @@
+spring:
+  data:
+    elasticsearch:
+      cluster-nodes: 192.168.194.130:9300
+      repositories:
+        enabled: true
+#      properties:
+#          username: elastic
+#          password: changeme
+
+        # JEST (Elasticsearch HTTP client) (JestProperties)
+        #spring.elasticsearch.jest.connection-timeout=3000
+        #spring.elasticsearch.jest.multi-threaded=true
+        #spring.elasticsearch.jest.username=elastic
+        #spring.elasticsearch.jest.password=changeme
+        #spring.elasticsearch.jest.proxy.host=
+        #spring.elasticsearch.jest.proxy.port=
+        #spring.elasticsearch.jest.read-timeout=3000
+        #spring.elasticsearch.jest.uris=http://192.168.194.130:9200
+
+        # ELASTICSEARCH (ElasticsearchProperties)
+        #spring.data.elasticsearch.cluster-name=elasticsearch
+        #spring.data.elasticsearch.cluster-nodes=192.168.194.130:9300
+        #spring.data.elasticsearch.repositories.enabled=true
+        #spring.data.elasticsearch.properties.*=
