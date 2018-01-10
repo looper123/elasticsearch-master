@@ -22,6 +22,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 @Document(indexName = "customer", type = "customer", shards = 1, replicas = 0, refreshInterval = "-1")
 public class Customer {
 
+	//当不指定id的时候 自动生成不重复id
 	@Id
 	private String id;
 
@@ -36,6 +37,13 @@ public class Customer {
 		this.firstName = firstName;
 		this.lastName = lastName;
 	}
+
+	public Customer(String id, String firstName, String lastName) {
+		this.id = id;
+		this.firstName = firstName;
+		this.lastName = lastName;
+	}
+
 
 	public String getId() {
 		return this.id;
