@@ -1,7 +1,9 @@
 spring:
   data:
     elasticsearch:
-      cluster-nodes: 192.168.194.130:9300
+#    这里就算只配置一个url 也可以把数据分发到集群的各个节点上 （多个url只是为了减少es服务器的压力）
+      cluster-nodes: 192.168.194.130:9300,192.168.194.132:9300
+      cluster-name: elasticsearch
       repositories:
         enabled: true
 #      properties:

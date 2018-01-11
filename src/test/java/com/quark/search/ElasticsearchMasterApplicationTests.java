@@ -23,68 +23,100 @@ import java.util.Optional;
 @SpringBootTest
 public class ElasticsearchMasterApplicationTests {
 
-	@Autowired
-	private CustomerRepository repository;
+    @Autowired
+    private CustomerRepository repository;
 
-	@Autowired
-	private ElasticsearchTemplate elasticsearchTemplate;
+    @Autowired
+    private ElasticsearchTemplate elasticsearchTemplate;
 
-	@Test
-	public void contextLoads() {
-	}
+    @Test
+    public void contextLoads() {
+    }
 
-	@Test
-	public void saveCustomers() {
+    @Test
+    public void saveCustomers() {
 		this.repository.save(new Customer("looper_2", "Smith_2"));
 		this.repository.save(new Customer("andy", "Smith"));
 //		elasticseach是不能对文档进行修改的 ，只能重建索引 或者 替换（当文档名、type、id相同时就会进行替换 这时候会返回当前数据的版本号（version））
-//		this.repository.save(new Customer("1","name_f", "name_l"));
-	}
+//        Customer cutomer = repository.save(new Customer("1", "first_" , "last_1" ));
+    }
 
-	@Test
-	public void fetchAllCustomers() {
-		System.out.println("Customers found with findAll():");
-		System.out.println("-------------------------------");
-		Iterable<Customer> all = this.repository.findAll();
-		for (Customer customer : all) {
-			System.out.println(customer);
-		}
-		System.out.println();
-	}
+    @Test
+    public void fetchAllCustomers() {
+        System.out.println("Customers found with findAll():");
+        System.out.println("-------------------------------");
+        Iterable<Customer> all = this.repository.findAll();
+        for (Customer customer : all) {
+            System.out.println(customer);
+        }
+        System.out.println();
+    }
 
-	@Test
-	public void fetchIndividualCustomers() {
-		System.out.println("Customer found with findByFirstName('Alice'):");
-		System.out.println("--------------------------------");
-		System.out.println(this.repository.findByFirstName("Bob"));
-		System.out.println(this.repository.findAll());
-		System.out.println("Customers found with findByLastName('Smith'):");
-	}
+    @Test
+    public void fetchIndividualCustomers() {
+        System.out.println("Customer found with findByFirstName('Alice'):");
+        System.out.println("--------------------------------");
+        System.out.println(this.repository.findByFirstName("Bob"));
+        System.out.println(this.repository.findAll());
+        System.out.println("Customers found with findByLastName('Smith'):");
+    }
 
-	@Test
-	public void  speedQuery(){
-		Optional<Customer> customer = repository.findById("AWDefR7kakmymxcaKPzi");
-		Iterable<Customer> customers = repository.search(new NativeSearchQueryBuilder().withQuery(
+    @Test
+    public void speedQuery() {
+        Optional<Customer> customer = repository.findById("AWDefR7kakmymxcaKPzi");
+        Iterable<Customer> customers = repository.search(new NativeSearchQueryBuilder().withQuery(
 //				这里的querybuilder都是以fieldname为查询条件
-				new MatchAllQueryBuilder()).withQuery(new BoolQueryBuilder().must(new TermQueryBuilder("_index","customer"))).withQuery(new BoolQueryBuilder().must(new TermQueryBuilder("_type","customer"))).build());
-		System.out.println("cutomers"+customer);
+                new MatchAllQueryBuilder()).withQuery(new BoolQueryBuilder().must(new TermQueryBuilder("_index", "customer"))).withQuery(new BoolQueryBuilder().must(new TermQueryBuilder("_type", "customer"))).build());
+        System.out.println("cutomers" + customer);
 
-	}
-
-	@Test
-	public void speedQueryWithScanAndScroll() {
-		List<String> ids = new ArrayList<>();
-		ids.add("1");
-		Page<Customer> customerPage = repository.search(new NativeSearchQueryBuilder().withQuery(new MatchAllQueryBuilder())
-				.withIndices("customer")
-				.withTypes("customer")
-				.withIds(ids)
-				.withPageable(PageRequest.of(2,1))
-				.build());
-		System.out.println("pagecustomer" + customerPage);
-	}
+    }
 
 
+    @Test
+    public void speedQueryWithScanAndScroll() {
+        List<String> ids = new ArrayList<>();
+        ids.add("1");
+        Page<Customer> customerPage = repository.search(new NativeSearchQueryBuilder().withQuery(new MatchAllQueryBuilder())
+                .withIndices("customer")
+                .withTypes("customer")
+                .withIds(ids)
+                .withPageable(PageRequest.of(2, 1))
+                .build());
+        System.out.println("pagecustomer" + customerPage);
+    }
+
+
+    /**
+     * curl -XPUT 'http://192.168.194.130:9200/customer/customer/1?pretty' -H 'Content-Type: application/json' -d'
+     * {
+     * "id": "1",
+     * "firstName":  "first_1",
+     * "lastName":  "last_1"
+     * }
+     * '
+     * /**
+     * 测试并发修改
+     */
+    @Test
+    public void superveneTest() {
+//        final CountDownLatch countDownLatch = new CountDownLatch(10);
+        for (int i = 0; i < 1; i++) {
+            final int finalI = i;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+//                    try {
+//                        countDownLatch.countDown();
+//                        countDownLatch.await();
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+                    Customer cutomer = repository.save(new Customer("1", "first_" , "last_1" ));
+                    System.out.println("customer" + finalI + "------" + cutomer);
+                }
+            }).start();
+        }
+    }
 
 
 //	@Test
@@ -137,8 +169,6 @@ public class ElasticsearchMasterApplicationTests {
 //			}
 //		}
 //	}
-
-
 
 
 }
